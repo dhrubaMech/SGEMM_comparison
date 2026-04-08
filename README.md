@@ -16,12 +16,12 @@ The goal is to study how different optimization strategies affect performance an
 * Designed for profiling with Nsight Compute (NCU)
 
 ## Repository Structure
-.
+. \
 ├── matMul.cu                # CUDA kernels (naive + optimized) \
 ├── helperFunction.cpp      # Utility functions (timing, initialization, etc.) \
-├── Makefile                # Build script
-├── KernelTimings/          # Stores timing results (CSV files)
-├── plotTILESIZE.py         # Example plotting script
+├── Makefile                # Build script \
+├── KernelTimings/          # Stores timing results (CSV files) \
+├── plotTILESIZE.py         # Example plotting script \
 └── README.md
 
 ## Build Instructions
