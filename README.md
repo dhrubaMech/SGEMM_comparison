@@ -17,8 +17,8 @@ The goal is to study how different optimization strategies affect performance an
 
 ## Repository Structure
 .
-├── matMul.cu                # CUDA kernels (naive + optimized)
-├── helperFunction.cpp      # Utility functions (timing, initialization, etc.)
+├── matMul.cu                # CUDA kernels (naive + optimized) \
+├── helperFunction.cpp      # Utility functions (timing, initialization, etc.) \
 ├── Makefile                # Build script
 ├── KernelTimings/          # Stores timing results (CSV files)
 ├── plotTILESIZE.py         # Example plotting script
