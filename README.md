@@ -1,4 +1,4 @@
-# SGEMM_comparisonSGEMM CUDA Kernel Optimization & Benchmarking
+# SGEMM CUDA Kernel Optimization & Benchmarking
 ## Overview
 This repository implements and benchmarks multiple SGEMM (Single-Precision Matrix Multiplication) kernels in CUDA, comparing their performance against:
 * CPU naive implementation
