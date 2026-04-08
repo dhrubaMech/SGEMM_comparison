@@ -94,8 +94,8 @@ if __name__ == "__main__":
     #    print(font)  
     # exit()   
 
-    plotRectTiles()
+    # plotRectTiles()
 
-    # plot2Dregister()
+    plot2Dregister()
 
     
