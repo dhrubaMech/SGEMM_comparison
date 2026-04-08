@@ -1,17 +1,16 @@
-# SGEMM_comparison
-This repository presents a comprehensive study of SGEMM (Single-Precision General Matrix Multiplication) implementations in CUDA, with a focus on performance optimization and comparative analysis.
+# SGEMM_comparisonSGEMM CUDA Kernel Optimization & Benchmarking
+## Overview
+This repository implements and benchmarks multiple SGEMM (Single-Precision Matrix Multiplication) kernels in CUDA, comparing their performance against:
+* CPU naive implementation
+* GPU naive implementation
+* Optimized CUDA kernels (tiling, shared memory, vectorization, etc.)
 
-The project includes multiple GPU kernel variants, ranging from a naive implementation to progressively optimized tiled and vectorized kernels, alongside a baseline CPU implementation for reference. Each kernel is evaluated using NVIDIA profiling tools to analyze performance characteristics such as occupancy, memory throughput, and compute efficiency.
+The goal is to study how different optimization strategies affect performance and to build intuition about GPU execution behavior.
 
-Key highlights of the repository:
-
-* Implementation of CPU naive, GPU naive, and optimized CUDA SGEMM kernels
-* Exploration of tiling strategies, shared memory usage, and vectorized memory access
-* Performance comparison across different configurations (tile sizes, thread block shapes, etc.)
-* Profiling using Nsight Compute (NCU) to extract metrics like:
-* Achieved occupancy
-* Memory bandwidth utilization
-* Warp execution efficiency
-* Analysis of how architectural factors such as register usage, memory coalescing, and bank conflicts impact performance
-
-This repository is intended as a learning and benchmarking resource for understanding GPU performance optimization, as well as a practical guide for designing high-performance CUDA kernels.
+## Features
+* Multiple CUDA SGEMM kernel implementations
+* CPU baseline for correctness and comparison
+* Performance benchmarking across kernels
+* Automatic timing and CSV logging
+* Ready-to-use Python script for visualization
+* Designed for profiling with Nsight Compute (NCU)
