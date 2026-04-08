@@ -14,3 +14,25 @@ The goal is to study how different optimization strategies affect performance an
 * Automatic timing and CSV logging
 * Ready-to-use Python script for visualization
 * Designed for profiling with Nsight Compute (NCU)
+
+## Repository Structure
+.
+├── matMul.cu                # CUDA kernels (naive + optimized)
+├── helperFunction.cpp      # Utility functions (timing, initialization, etc.)
+├── Makefile                # Build script
+├── KernelTimings/          # Stores timing results (CSV files)
+├── plotTILESIZE.py         # Example plotting script
+└── README.md
+
+## Build Instructions
+Make sure you have:
+* CUDA Toolkit installed
+* nvcc available in your PATH
+Then simply run:
+```
+make
+
+This generates the executable:
+```
+res
+
