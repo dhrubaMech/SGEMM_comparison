@@ -31,8 +31,59 @@ Make sure you have:
 Then simply run:
 ```
 make
-
+```
 This generates the executable:
 ```
 res
+```
+
+## Running the Code
+Run the executable:
+```
+./res
+```
+
+What happens during execution:
+* Each kernel is executed multiple times (to reduce noise)
+* Execution time is recorded for each run
+* Results are saved as CSV files
+
+## Output Format
+Timing results are stored in:
+```
+KernelTimings/
+```
+Each file follows the naming convention:
+```
+CUDA{kernel_type}_N{repetitions}.csv
+```
+
+## Visualization
+You can visualize performance trends using Python and Matplotlib.
+An example script is provided:
+```
+python plotTILESIZE.py
+```
+This script demonstrates how to:
+* Load CSV timing data
+* Plot performance vs tile size / configuration
+* Compare different kernels
+
+## Profiling (Recommended)
+For deeper analysis, use Nsight Compute (NCU):
+```
+ncu ./res
+```
+Important metrics to analyze:
+* Achieved Occupancy
+* Warp Efficiency
+* Memory Throughput
+* Register Usage
+* Shared Memory Utilization
+
+## Requirements
+* CUDA-capable GPU (tested on RTX 20xx series)
+* CUDA Toolkit
+* Python (for plotting)
+* Matplotlib, NumPy
 
