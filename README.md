@@ -82,7 +82,7 @@ Important metrics to analyze:
 * Shared Memory Utilization
 
 ## Requirements
-* CUDA-capable GPU (tested on RTX 20xx series)
+* CUDA-capable GPU (tested on RTX 2080 Ti)
 * CUDA Toolkit
 * Python (for plotting)
 * Matplotlib, NumPy
