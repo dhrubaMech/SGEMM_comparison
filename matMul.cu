@@ -88,17 +88,17 @@ __global__ void MatMulCUDAtiling(const float* dA, const float* dB, float* dC, co
 
         if (Brow_idx < K && globalCol < N){
             Bsub[ty][tx] = dB[Brow_idx*N + globalCol];
-	    // Bsub[tx][ty] = dB[Brow_idx*N + globalCol];
+    	    // Bsub[tx][ty] = dB[Brow_idx*N + globalCol];
         }
         else{
             Bsub[ty][tx] = 0.0f;
-	    // Bsub[tx][ty] = 0.0f;
+	        // Bsub[tx][ty] = 0.0f;
         }
         __syncthreads();
 
         for (int k = 0 ; k < TILESIZE ; k++){
             summ += Asub[ty][k] * Bsub[k][tx];
-	    // summ += Asub[ty][k] * Bsub[tx][k];
+	        // summ += Asub[ty][k] * Bsub[tx][k];
         }
         __syncthreads();
     }
@@ -209,7 +209,7 @@ __global__ void MatMulCUDAvectorsV2(const floatX* dA, const floatX* dB, floatX* 
             for (int w = 0 ; w < WIDTH ; w++){
                 // this only works for float2, need to add for float and float4 [will do next]		    
                 #if WIDTH == 2
-		    valA = (w == 0) ? vecA.x : vecA.y;
+		            valA = (w == 0) ? vecA.x : vecA.y;
                     vecB = Bsub[k * WIDTH + w][tx];
                     summ.x += valA * vecB.x;
                     summ.y += valA * vecB.y;
@@ -290,7 +290,7 @@ __global__ void MatMulCUDArectTilesWPTcol(const float* dA, const float* dB, floa
             for (int w = 0; w < WPTN; w++) {
                 int BcolIdx = globalCol + w;
                 Bsub[i][tx*WPTN + w] = (BrowIdx < K && BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
-		// Bsub[i][tx + w*blockDim.x] = (BrowIdx < K && BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
+        		// Bsub[i][tx + w*blockDim.x] = (BrowIdx < K && BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
             }
         }
 	__syncthreads();
@@ -370,8 +370,8 @@ __global__ void MatMulCUDA2Dregisters(const float* dA, const float* dB, float* d
     float summ[WPTM][WPTN];
     for (int wm = 0 ; wm < WPTM ; wm++){
         for (int wn = 0 ; wn < WPTN ; wn++){
-	    summ[wm][wn] = 0.0f;
-	}
+            summ[wm][wn] = 0.0f;
+        }
     }
 
     // allocating space in register for moving memory from shared to register
@@ -381,41 +381,41 @@ __global__ void MatMulCUDA2Dregisters(const float* dA, const float* dB, float* d
     for (int t = 0 ; t < numTiles ; t++){
 	for (int wm = 0 ; wm < WPTM ; wm++){
 	    for (int i = tx ; i < TSK ; i += blockDim.x){
-		int AcolIdx = t*TSK + i;
-		int ArowIdx = globalRow + wm;
-		Asub[ty*WPTM + wm][i] = (ArowIdx < M) && (AcolIdx < K) ? dA[ArowIdx*K + AcolIdx] : 0.0f;
+            int AcolIdx = t*TSK + i;
+            int ArowIdx = globalRow + wm;
+            Asub[ty*WPTM + wm][i] = (ArowIdx < M) && (AcolIdx < K) ? dA[ArowIdx*K + AcolIdx] : 0.0f;
 	    }
 	}
 	for (int wn = 0 ; wn < WPTN ; wn++){
 	    for (int i = ty ; i < TSK ; i += blockDim.y){
 	    	int BcolIdx = globalCol + wn;
-		int BrowIdx = t*TSK + i;
-		Bsub[i][tx*WPTN + wn] = (BrowIdx < K) && (BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
+            int BrowIdx = t*TSK + i;
+            Bsub[i][tx*WPTN + wn] = (BrowIdx < K) && (BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
 	    }
 	}
 	__syncthreads();
 
 	for (int k = 0 ; k < TSK ; k++){
 	    for (int wn = 0 ; wn < WPTN ; wn++){
-		BsubReg[wn] = Bsub[k][tx*WPTN + wn];
+		    BsubReg[wn] = Bsub[k][tx*WPTN + wn];
 	    }
 
 	    for (int wm = 0 ; wm < WPTM ; wm++){
-		AsubReg = Asub[ty*WPTM + wm][k];
+		    AsubReg = Asub[ty*WPTM + wm][k];
 	    	for (int wn = 0 ; wn < WPTN ; wn++){
-		    summ[wm][wn] += AsubReg * BsubReg[wn];
-		}
+                summ[wm][wn] += AsubReg * BsubReg[wn];
+            }
 	    }
 	}
 	__syncthreads();
     }
     for (int wm = 0 ; wm < WPTM ; wm++){
         for (int wn = 0 ; wn < WPTN ; wn++){
-	    if ((globalRow + wm) < M && (globalCol + wn) < N){
-	    	dC[(globalRow + wm)*N + globalCol + wn] = summ[wm][wn];
+	        if ((globalRow + wm) < M && (globalCol + wn) < N){
+	    	    dC[(globalRow + wm)*N + globalCol + wn] = summ[wm][wn];
             	// dC[(globalRow + wm)*N + globalCol + wn] = (globalRow + wm)*N + globalCol + wn;
+	        }
 	    }
-	}
     }
 }
 
@@ -433,8 +433,8 @@ __global__ void MatMulCUDA2DregisterVector(const floatX* dA, const floatX* dB, f
     float summ[WPTM][WPTN];
     for (int wm = 0 ; wm < WPTM ; wm++){
         for (int wn = 0 ; wn < WPTN ; wn++){
-	    summ[wm][wn] = 0.0f;
-	}
+            summ[wm][wn] = 0.0f;
+        }
     }
 
     float Areg,Breg[WPTN];
@@ -442,62 +442,63 @@ __global__ void MatMulCUDA2DregisterVector(const floatX* dA, const floatX* dB, f
     int numTiles = (K + TSK -1)/TSK;
     for (int t = 0 ; t < numTiles ; t++){
     	for (int i = tx*WIDTH ; i < TSK ; i += blockDim.x*WIDTH){
-	    int AcolIdx = t*TSK + i;
-	    for (int wm = 0 ; wm < WPTM ; wm++){
-		int ArowIdx = globalRow + wm;
+	        int AcolIdx = t*TSK + i;
+	        for (int wm = 0 ; wm < WPTM ; wm++){
+		        int ArowIdx = globalRow + wm;
                 #if WIDTH == 1
-	            Asub[ty*WPTM + wm][i] = (ArowIdx < M) && (AcolIdx < K) ? dA[ArowIdx*K + AcolIdx] : 0.0f;
-	        #elif WIDTH == 2
-		    Asub[ty*WPTM + wm][i]   = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/2 + AcolIdx/2].x : 0.0f;
-		    Asub[ty*WPTM + wm][i+1] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/2 + AcolIdx/2].y : 0.0f;
+	                Asub[ty*WPTM + wm][i] = (ArowIdx < M) && (AcolIdx < K) ? dA[ArowIdx*K + AcolIdx] : 0.0f;
+                #elif WIDTH == 2
+                    Asub[ty*WPTM + wm][i]   = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/2 + AcolIdx/2].x : 0.0f;
+                    Asub[ty*WPTM + wm][i+1] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/2 + AcolIdx/2].y : 0.0f;
                 #elif WIDTH == 4
-		    Asub[ty*WPTM + wm][i]   = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].x : 0.0f;
-		    Asub[ty*WPTM + wm][i+1] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].y : 0.0f;
-		    Asub[ty*WPTM + wm][i+2] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].z : 0.0f;
-		    Asub[ty*WPTM + wm][i+3] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].w : 0.0f;
+                    Asub[ty*WPTM + wm][i]   = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].x : 0.0f;
+                    Asub[ty*WPTM + wm][i+1] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].y : 0.0f;
+                    Asub[ty*WPTM + wm][i+2] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].z : 0.0f;
+                    Asub[ty*WPTM + wm][i+3] = (ArowIdx < M) && (AcolIdx+WIDTH-1 < K) ? dA[ArowIdx*K/4 + AcolIdx/4].w : 0.0f;
                 #endif
+	        }
 	    }
-	}
         for (int i = ty ; i < TSK ; i += blockDim.y){
-	    int BrowIdx = t*TSK + i;
-	    for (int wn = 0 ; wn < WPTN ; wn += WIDTH){
+	        int BrowIdx = t*TSK + i;
+	        for (int wn = 0 ; wn < WPTN ; wn += WIDTH){
                 int BcolIdx = globalCol + wn;
                 #if WIDTH == 1
-		    Bsub[i][tx*WPTN] = (BrowIdx < K) && (BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
+		            Bsub[i][tx*WPTN] = (BrowIdx < K) && (BcolIdx < N) ? dB[BrowIdx*N + BcolIdx] : 0.0f;
                 #elif WIDTH == 2
-		    Bsub[i][tx*WPTN + wn]     = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/2 + BcolIdx/2].x : 0.0f;
+		            Bsub[i][tx*WPTN + wn]     = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/2 + BcolIdx/2].x : 0.0f;
                     Bsub[i][tx*WPTN + wn + 1] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/2 + BcolIdx/2].y : 0.0f;
                 #elif WIDTH == 4
-		    Bsub[i][tx*WPTN + wn    ] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].x : 0.0f;
-		    Bsub[i][tx*WPTN + wn + 1] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].y : 0.0f;
-		    Bsub[i][tx*WPTN + wn + 2] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].z : 0.0f;
-		    Bsub[i][tx*WPTN + wn + 3] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].w : 0.0f;
+                    Bsub[i][tx*WPTN + wn    ] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].x : 0.0f;
+                    Bsub[i][tx*WPTN + wn + 1] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].y : 0.0f;
+                    Bsub[i][tx*WPTN + wn + 2] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].z : 0.0f;
+                    Bsub[i][tx*WPTN + wn + 3] = (BrowIdx < K) && (BcolIdx+WIDTH-1 < N) ? dB[BrowIdx*N/4 + BcolIdx/4].w : 0.0f;
                 #endif
             }
         }
-	__syncthreads();
+	    __syncthreads();
 
-	for (int k = 0 ; k < TSK ; k++){
-	    for (int wn = 0 ; wn < WPTN ; wn++){
-		Breg[wn] = Bsub[k][tx*WPTN + wn];
-	    }
-	
-	    for (int wm = 0 ; wm < WPTM ; wm++){
-		Areg = Asub[ty*WPTM + wm][k];
+	    for (int k = 0 ; k < TSK ; k++){
 	        for (int wn = 0 ; wn < WPTN ; wn++){
-		    summ[wm][wn] += Areg * Breg[wn];
-		}
+		        Breg[wn] = Bsub[k][tx*WPTN + wn];
+	        }
+	
+	        for (int wm = 0 ; wm < WPTM ; wm++){
+		        Areg = Asub[ty*WPTM + wm][k];
+	            for (int wn = 0 ; wn < WPTN ; wn++){
+		            summ[wm][wn] += Areg * Breg[wn];
+		        }
+	        }
 	    }
-	}
-	__syncthreads();
+	    __syncthreads();
     }
+
     for (int wm = 0 ; wm < WPTM ; wm++){
-	for (int wn = 0 ; wn < WPTN ; wn++){
-	    if ((globalRow + wm < M) && (globalCol + wn < N)){
-	        dC[(globalRow + wm)*N + (globalCol + wn)] = summ[wm][wn];
+	    for (int wn = 0 ; wn < WPTN ; wn++){
+	        if ((globalRow + wm < M) && (globalCol + wn < N)){
+	            dC[(globalRow + wm)*N + (globalCol + wn)] = summ[wm][wn];
                 // dC[(globalRow + wm)*N + (globalCol + wn)] = (globalRow + wm)*N + (globalCol + wn);
+	        }
 	    }
-	}
     }
 }
 
@@ -526,24 +527,24 @@ __global__ void copy(floatX *dA, float *B, const int M, const int K){
     */
     
     // for (int wn = 0 ; wn < K/WIDTH ; wn++){
-    	int BrowIdx = ty;
+    int BrowIdx = ty;
 	int BcolIdx = tx;
 
 	if (tx*WIDTH + 1 < K){
-	Bsub[ty][tx*WIDTH]     = (BrowIdx < M) && (BcolIdx < K/WIDTH) ? dA[BrowIdx*K/WIDTH + BcolIdx].x : 0.0f;
-	Bsub[ty][tx*WIDTH + 1] = (BrowIdx < M) && (BcolIdx < K/WIDTH) ? dA[BrowIdx*K/WIDTH + BcolIdx].y : 0.0f;
+        Bsub[ty][tx*WIDTH]     = (BrowIdx < M) && (BcolIdx < K/WIDTH) ? dA[BrowIdx*K/WIDTH + BcolIdx].x : 0.0f;
+        Bsub[ty][tx*WIDTH + 1] = (BrowIdx < M) && (BcolIdx < K/WIDTH) ? dA[BrowIdx*K/WIDTH + BcolIdx].y : 0.0f;
 	}
     // }
 
     __syncthreads();
 
     if (tx==0 && ty == 0){
-	for (int m = 0 ; m < M ; m++){
-	    for (int k = 0 ; k < K ; k++){
-	        // B[m*K + k] = Asub[m][k];
-		B[m*K + k] = Bsub[m][k];
-	    }
-	}
+        for (int m = 0 ; m < M ; m++){
+            for (int k = 0 ; k < K ; k++){
+                // B[m*K + k] = Asub[m][k];
+                B[m*K + k] = Bsub[m][k];
+            }
+        }
     }
 }
 
@@ -602,16 +603,16 @@ int main(){
 
     float *C1 = new float[M*N];
     if (CPU_naive){
-	// ofstream file("KernelTimings/CPUnaive_N"+to_string(repeat)+".csv");
-	for (int r = 0 ; r < 1 ; r++){
-	    auto s0 = std::chrono::steady_clock::now();
-   	    simpleMatMul(A,B,C1,M,N,K);
-   	    auto e0 = std::chrono::steady_clock::now();
-    	    std::chrono::duration<double, std::micro> T0 = e0 - s0;
-    	    printf("Time taken by Naive MatMul ~ %f microsecs\n\n",T0.count());
-	    // file << T0.count() << ((r != repeat-1) ? "," : "");
-	}
-	// file.close();
+        // ofstream file("KernelTimings/CPUnaive_N"+to_string(repeat)+".csv");
+        for (int r = 0 ; r < 1 ; r++){
+            auto s0 = std::chrono::steady_clock::now();
+            simpleMatMul(A,B,C1,M,N,K);
+            auto e0 = std::chrono::steady_clock::now();
+            std::chrono::duration<double, std::micro> T0 = e0 - s0;
+            printf("Time taken by Naive MatMul ~ %f microsecs\n\n",T0.count());
+            // file << T0.count() << ((r != repeat-1) ? "," : "");
+        }
+        // file.close();
     }
     
     // show2DMat(C1,r1,c2);
@@ -640,14 +641,14 @@ int main(){
 
     // NAIVE //
     if (CUDA_naive){
-	dim3 block(TILESIZE,TILESIZE);
+	    dim3 block(TILESIZE,TILESIZE);
     	dim3  grid((N + TILESIZE -1)/TILESIZE , (M + TILESIZE -1)/TILESIZE) ;
 
-	ofstream file("KernelTimings/CUDAnaive_N"+to_string(repeat)+".csv");
-	for (int r = 0 ; r < repeat ; r++){
+	    ofstream file("KernelTimings/CUDAnaive_N"+to_string(repeat)+".csv");
+	    for (int r = 0 ; r < repeat ; r++){
 	
-	    CHECK_CUDA(cudaMemset(dC, 0.0f, M*N * sizeof(float)));
-	    memset(C3, 0.0f, M*N * sizeof(float));
+	        CHECK_CUDA(cudaMemset(dC, 0.0f, M*N * sizeof(float)));
+	        memset(C3, 0.0f, M*N * sizeof(float));
 
             auto s2 = std::chrono::steady_clock::now();
             MatMulCUDAnaive<<<grid,block>>>(dA,dB,dC,M,N,K);
@@ -655,27 +656,26 @@ int main(){
             auto e2 = std::chrono::steady_clock::now();
             std::chrono::duration<double, std::micro> T2 = e2 - s2;
             printf("Time taken by naive CUDA MatMul ~ %f microsecs\n",T2.count());
-	    file << T2.count() << ((r != repeat-1) ? "," : "");
-
+	        file << T2.count() << ((r != repeat-1) ? "," : "");
 
             CHECK_CUDA(cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost));
             checkDiff(C1,C3,M,N,"CPU naive & GPU naive");
             // show2DMat(C3,M,N);
     	}
-	file.close();
+    	file.close();
     }
 
         
     // TILING //
     if (CUDA_Tiling){
-	dim3 block(TILESIZE,TILESIZE);
+	    dim3 block(TILESIZE,TILESIZE);
         dim3  grid((N + TILESIZE -1)/TILESIZE , (M + TILESIZE -1)/TILESIZE) ;
 
-	ofstream file("KernelTimings/CUDAtiling_N"+to_string(repeat)+".csv");
+	    ofstream file("KernelTimings/CUDAtiling_N"+to_string(repeat)+".csv");
         for (int r = 0 ; r < repeat ; r++){
 
-	    cudaMemset(dC, 0.0f, M*N * sizeof(float));
-	    memset(C3, 0.0f, M*N * sizeof(float));
+	        cudaMemset(dC, 0.0f, M*N * sizeof(float));
+	        memset(C3, 0.0f, M*N * sizeof(float));
 
             auto s3 = std::chrono::steady_clock::now();
             MatMulCUDAtiling<<<grid,block>>>(dA,dB,dC,M,N,K);
@@ -683,40 +683,40 @@ int main(){
             auto e3 = std::chrono::steady_clock::now();
             std::chrono::duration<double, std::micro> T3 = e3 - s3;
             printf("Time taken by tiling CUDA MatMul ~ %f microsecs\n",T3.count());
-	    file << T3.count() << ((r != repeat-1) ? "," : "");
+	        file << T3.count() << ((r != repeat-1) ? "," : "");
         
             cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost);
             checkDiff(C1,C3,M,N,"CPU naive & GPU tiling");
             // show2DMat(C3,M,N);
-	}
-	file.close();
+    	}
+	    file.close();
     }
 
     
     // More work per thread // 
     if (CUDA_TilingWithWPT){
-	dim3 block(RTS,TILESIZE);
+	    dim3 block(RTS,TILESIZE);
     	dim3  grid((N + TILESIZE -1)/TILESIZE , (M + TILESIZE -1)/TILESIZE) ;
 
-	ofstream file("KernelTimings/CUDAtilingWPT_N"+to_string(repeat)+".csv");
+	    ofstream file("KernelTimings/CUDAtilingWPT_N"+to_string(repeat)+".csv");
         for (int r = 0 ; r < repeat ; r++){
 
-	    cudaMemset(dC, 0.0f, M*N * sizeof(float));
-	    memset(C3, 0.0f, M*N * sizeof(float));
-        
-	    auto s4 = std::chrono::steady_clock::now();
+            cudaMemset(dC, 0.0f, M*N * sizeof(float));
+            memset(C3, 0.0f, M*N * sizeof(float));
+            
+            auto s4 = std::chrono::steady_clock::now();
             MatMulCUDAmoreWPT<<<grid,block>>>(dA,dB,dC,M,N,K);
             cudaDeviceSynchronize();
             auto e4 = std::chrono::steady_clock::now();
             std::chrono::duration<double, std::micro> T4 = e4 - s4;
             printf("Time taken by tiling+WPT CUDA MatMul ~ %f microsecs\n",T4.count());
-	    file << T4.count() << ((r != repeat-1) ? "," : "");
+	        file << T4.count() << ((r != repeat-1) ? "," : "");
         
             cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost);
             checkDiff(C1,C3,M,N,"CPU Naive & GPU Tiling + WPT");
             // show2DMat(C3,M,N);
-	}
-	file.close();
+        }
+        file.close();
     }
 
 
@@ -728,94 +728,94 @@ int main(){
     cudaMalloc((void**) &dC_f, M*(N/WIDTH) * sizeof(floatX)) ;
 
     if (CUDA_TilingWithVector){
-	cudaMemcpy(dA_f, A, M*K * sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(dB_f, B, K*N * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(dA_f, A, M*K * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(dB_f, B, K*N * sizeof(float), cudaMemcpyHostToDevice);
 
-	// float *Bt = TransposeMatrix(B,K,N);
-	// cudaMemcpy(dB_f, Bt, K*N * sizeof(float), cudaMemcpyHostToDevice);
-	// cudaMemset(dC, 0.0f, M*N * sizeof(float));
+        // float *Bt = TransposeMatrix(B,K,N);
+        // cudaMemcpy(dB_f, Bt, K*N * sizeof(float), cudaMemcpyHostToDevice);
+        // cudaMemset(dC, 0.0f, M*N * sizeof(float));
 
-	dim3 block(TILESIZE/WIDTH,TILESIZE);
-	dim3  grid(((N/WIDTH)+(TILESIZE/WIDTH)-1)/(TILESIZE/WIDTH), (M+TILESIZE-1)/TILESIZE);
+        dim3 block(TILESIZE/WIDTH,TILESIZE);
+        dim3  grid(((N/WIDTH)+(TILESIZE/WIDTH)-1)/(TILESIZE/WIDTH), (M+TILESIZE-1)/TILESIZE);
 
-	ofstream file("KernelTimings/CUDAtilingVect_N"+to_string(repeat)+".csv");
+        ofstream file("KernelTimings/CUDAtilingVect_N"+to_string(repeat)+".csv");
         for (int r = 0 ; r < repeat ; r++){
 
-	    cudaMemset(dC_f, 0.0f, M*N * sizeof(float));
-	    memset(C3, 0.0f, M*N * sizeof(float));
+            cudaMemset(dC_f, 0.0f, M*N * sizeof(float));
+            memset(C3, 0.0f, M*N * sizeof(float));
 
-	    auto s5 = std::chrono::steady_clock::now();
+            auto s5 = std::chrono::steady_clock::now();
             MatMulCUDAvectorsV2<<<grid,block>>>(dA_f,dB_f,dC_f,M,N,K);
             cudaDeviceSynchronize();
-	    auto e5 = std::chrono::steady_clock::now();
+	        auto e5 = std::chrono::steady_clock::now();
             std::chrono::duration<double, std::micro> T5 = e5 - s5;
             printf("Time taken by tiling+vectors CUDA MatMul ~ %f microsecs\n",T5.count());
-	    file << T5.count() << ((r != repeat-1) ? "," : "");
+	        file << T5.count() << ((r != repeat-1) ? "," : "");
         
             cudaMemcpy(C3, dC_f, M*N * sizeof(float), cudaMemcpyDeviceToHost);
             checkDiff(C1,C3,M,N,"CPU Naive & GPU Tiling + vectors");
             // show2DMat(C3,M,N);
-	}
-	file.close();
+        }
+        file.close();
     }
 
     if (CUDA_RectTiling){
-	cudaMemset(dC, 0.0f, M*N * sizeof(float));
-	memset(C3, 0.0f, M*N * sizeof(float));
-	
-	dim3 block(TSN,TSM);
-	dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
+        cudaMemset(dC, 0.0f, M*N * sizeof(float));
+        memset(C3, 0.0f, M*N * sizeof(float));
+        
+        dim3 block(TSN,TSM);
+        dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
 
-	auto s6 = std::chrono::steady_clock::now();
-	MatMulCUDArectTiles<<<grid,block>>>(dA,dB,dC,M,N,K);
-	cudaDeviceSynchronize();
-	auto e6 = std::chrono::steady_clock::now();
+        auto s6 = std::chrono::steady_clock::now();
+        MatMulCUDArectTiles<<<grid,block>>>(dA,dB,dC,M,N,K);
+        cudaDeviceSynchronize();
+        auto e6 = std::chrono::steady_clock::now();
         std::chrono::duration<double, std::micro> T6 = e6 - s6;
         printf("Time taken by rectangular tiling CUDA MatMul ~ %f microsecs\n",T6.count());
 
-	cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost);
+	    cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost);
         checkDiff(C1,C3,M,N,"CPU Naive & GPU rectangular Tiling");
         // show2DMat(C3,M,N); 
     }
 
     if (CUDA_RectTilingWPT){
-	dim3 block(TSN/WPTN,TSM);
-	dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
-	// dim3 block(TSN,TSM/WPTN);
+        dim3 block(TSN/WPTN,TSM);
+        dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
+        // dim3 block(TSN,TSM/WPTN);
         // dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
 
-	ofstream file("KernelTimings/CUDARectilingWPT_N"+to_string(repeat)+".csv");
+	    ofstream file("KernelTimings/CUDARectilingWPT_N"+to_string(repeat)+".csv");
         for (int r = 0 ; r < repeat ; r++){
 
-	    cudaMemset(dC, 0.0f, M*N * sizeof(float));
+	        cudaMemset(dC, 0.0f, M*N * sizeof(float));
             memset(C3, 0.0f, M*N * sizeof(float));
 
             auto s7 = std::chrono::steady_clock::now();
             MatMulCUDArectTilesWPTcol<<<grid,block>>>(dA,dB,dC,M,N,K);
             // MatMulCUDArectTilesWPTrow<<<grid,block>>>(dA,dB,dC,M,N,K);
-	    cudaDeviceSynchronize();
+	        cudaDeviceSynchronize();
             auto e7= std::chrono::steady_clock::now();
             std::chrono::duration<double, std::micro> T7 = e7 - s7;
             printf("Time taken by rectangular tiling CUDA MatMul ~ %f microsecs\n",T7.count());
-	    file << T7.count() << ((r != repeat-1) ? "," : "");
+	        file << T7.count() << ((r != repeat-1) ? "," : "");
 
             cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost);
             checkDiff(C1,C3,M,N,"CPU Naive & GPU rectangular Tiling");
             // show2DMat(C3,M,N);
-	}
-	file.close();
+        }
+        file.close();
     }
 
     if (CUDA_2DRegister){
         dim3 block(TSN/WPTN,TSM/WPTM);
         dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
 
-	// ofstream file("KernelTimings/CUDA2Dregister_N"+to_string(repeat)+".csv");
-	ofstream file("EffectTilesize/CUDA2Dregister_N"+to_string(repeat)+"_TSM"+to_string(TSM)+"_TSN"+to_string(TSN)+"_TSK"+to_string(TSK)+"_WPT"+to_string(WPT)+".csv");
+        // ofstream file("KernelTimings/CUDA2Dregister_N"+to_string(repeat)+".csv");
+        ofstream file("EffectTilesize/CUDA2Dregister_N"+to_string(repeat)+"_TSM"+to_string(TSM)+"_TSN"+to_string(TSN)+"_TSK"+to_string(TSK)+"_WPT"+to_string(WPT)+".csv");
         for (int r = 0 ; r < repeat ; r++){
 
-	    cudaMemset(dC, 0.0f, M*N * sizeof(float));
-	    memset(C3, 0.0f, M*N * sizeof(float));
+            cudaMemset(dC, 0.0f, M*N * sizeof(float));
+            memset(C3, 0.0f, M*N * sizeof(float));
 
             auto s8 = std::chrono::steady_clock::now();
             MatMulCUDA2Dregisters<<<grid,block>>>(dA,dB,dC,M,N,K);
@@ -823,24 +823,24 @@ int main(){
             auto e8= std::chrono::steady_clock::now();
             std::chrono::duration<double, std::micro> T8 = e8 - s8;
             printf("Time taken by 2D register tiling CUDA MatMul ~ %f microsecs\n",T8.count());
-	    file << T8.count() << ((r != repeat-1) ? "," : "");
+	        file << T8.count() << ((r != repeat-1) ? "," : "");
 
             cudaMemcpy(C3, dC, M*N * sizeof(float), cudaMemcpyDeviceToHost);
             checkDiff(C1,C3,M,N,"CPU Naive & GPU 2D register Tiling");
             // show2DMat(C3,M,N);
-	}
-	file.close();
+        }
+        file.close();
     }
 
     if (CUDA_2DRegisterVector){
-	cudaMemcpy(dA_f, A, M*K * sizeof(float), cudaMemcpyHostToDevice);
+	    cudaMemcpy(dA_f, A, M*K * sizeof(float), cudaMemcpyHostToDevice);
         cudaMemcpy(dB_f, B, K*N * sizeof(float), cudaMemcpyHostToDevice);
 
         dim3 block(TSN/WPTN,TSM/WPTM);
         dim3  grid((N+TSN-1)/TSN,(M+TSM-1)/TSM);
 
         ofstream file("KernelTimings/CUDA2DregisterVector_N"+to_string(repeat)+".csv");
-	// ofstream file("EffectTilesize/CUDA2DregisterVectors_N"+to_string(repeat)+"_TSM"+to_string(TSM)+"_TSN"+to_string(TSN)+"_TSK"+to_string(TSK)+"_WPT"+to_string(WPT)+"_WIDTH"+to_string(WIDTH)+".csv");
+	    // ofstream file("EffectTilesize/CUDA2DregisterVectors_N"+to_string(repeat)+"_TSM"+to_string(TSM)+"_TSN"+to_string(TSN)+"_TSK"+to_string(TSK)+"_WPT"+to_string(WPT)+"_WIDTH"+to_string(WIDTH)+".csv");
         for (int r = 0 ; r < repeat ; r++){
 
             cudaMemset(dC, 0.0f, M*N * sizeof(float));
